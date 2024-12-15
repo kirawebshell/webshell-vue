@@ -1,0 +1,120 @@
+syntax = "proto3";
+option go_package = "/;pb";
+
+enum ShellType{
+  Aspx = 0;
+  Jsp = 1;
+  Php = 2;
+  Jspx = 3;
+}
+enum CipherMode{
+  Null = 0;
+  AesBase64 = 1;
+  XorBase64 = 2;
+  Base64 = 3;
+}
+enum Schema{
+  Http = 0;
+  Socks5 = 1;
+}
+enum Payload{
+  Ping = 0;
+}
+
+message Proxy{
+  Schema Schema = 1;
+  string User = 2;
+  string Pass = 3;
+  string address = 4;
+}
+message Config{
+  int64  BlockSize = 1;
+  Proxy Proxy = 2;
+  int64 Timeout = 3; //connect and cache
+  int64 Retry = 4;
+  int64 MaxSize = 5;
+  map<string, string> Headers = 6;
+  map<string, string> Cookies = 7;
+  map<string, string> Posts = 8;
+}
+message WebShell{
+  int64 Id = 1;
+  Config Config = 2;
+  string Url = 3;
+  string Password = 4;
+  ShellType ShellType = 5;
+  CipherMode EncodeMode = 6;
+  CipherMode DecodeMode = 7;
+  string Tag = 8;
+  bool  Session = 9;
+  string  Os = 10;
+  string Charset = 11; //未启用
+}
+message Response{
+  bool Status = 1;
+  string Msg = 2;
+}
+message Param{
+  string Key = 1;
+  string Value = 2;
+}
+message WebUrl{
+  string Schema = 1;
+  string Address = 2;
+  string User = 3;
+  string Pass = 4;
+  string Path = 5;
+  repeated Param Params = 6;
+}
+
+message WebRequest{
+  string Method = 1;
+  WebUrl WebUrl = 2;
+  map<string, string> Cookies = 3;
+  map<string, string> Headers = 4;
+  bytes Body = 5;
+}
+
+message EmptyRequest{
+  int64 Id = 1;
+  string Url = 2;
+}
+message QueryRequest{
+  int64 Limit = 1;
+  int64 Offset = 2;
+  EmptyRequest Request = 3;
+  string Company = 4; //未启用
+}
+message WebResponse{
+  string ResponseType = 1; //根据返回类型进行不同的展示
+  string Name = 2;
+  string Size = 3;
+  WebUrl Url = 4;
+  repeated Param ExtraData = 5;
+  Response Response = 6;
+}
+
+message GlobalConfig{
+  Proxy Proxy = 1;
+  int64 Timeout = 2;
+}
+message Generate{
+  ShellType Type = 1;
+  CipherMode CipherMode = 2;
+  string ConfusionMode = 3; //混淆方式，暂未启用
+  bool Confusion = 4; //是否混淆
+}
+message CacheLog{
+  string User = 1; //暂不启用
+  string IP = 2; //暂不启用
+  string log = 3;
+}
+
+service WsmManager{
+  rpc CreateOrUpdateWebShell(WebShell)returns(Response);
+  rpc DeleteWebShell(EmptyRequest)returns(Response);
+  rpc SelectWebShell(QueryRequest)returns(Response);
+  rpc CheckAlive(QueryRequest)returns(Response);
+  rpc RequestUrl(WebRequest)returns(WebResponse); //generate、wsmEngineRequest
+  rpc UpdateGlobal(GlobalConfig)returns(Response);
+}
