@@ -3,12 +3,12 @@ import { WsmManagerClient, WsmManagerPromiseClient } from '../proto/grpc_grpc_we
 import { webShell, emptyRequest, queryRequest, response } from '../proto/grpc_pb.js';
 
 // 设置gRPC Web客户端地址
-const SERVER_URL = 'http://localhost:8081/api';  // 修改为您的服务端地址
+const SERVER_URL = '/api';  // 修改为您的服务端地址
 
 class GrpcClient {
   constructor() {
     // 创建同步和Promise版本的客户端
-    this.client = new WsmManagerClient(SERVER_URL);
+    this.client = new WsmManagerClient(SERVER_URL, null, null);
     this.promiseClient = new WsmManagerPromiseClient(SERVER_URL);
   }
 
@@ -17,8 +17,10 @@ class GrpcClient {
     return new Promise((resolve, reject) => {
       this.client[methodName](requestObj, null, (error, response) => {
         if (error) {
+          console.error(`Error calling ${methodName}:`, error);  // 错误日志
           reject(error);
         } else {
+          console.log(`${methodName} response:`, response);  // 响应日志
           resolve(response);
         }
       });
@@ -27,7 +29,15 @@ class GrpcClient {
 
   // 创建或更新WebShell
   createOrUpdateWebShell(webShell) {
-    return this._request('createOrUpdateWebShell', webShell);
+    return this._request('createOrUpdateWebShell', webShell)
+      .then(response => {
+        console.log('WebShell updated:', response);
+        return response;
+      })
+      .catch(error => {
+        console.error('Failed to create or update WebShell:', error);
+        throw error;  // 继续抛出错误，或者在这里处理
+      });
   }
 
   // 删除WebShell

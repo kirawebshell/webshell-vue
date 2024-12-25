@@ -30,8 +30,6 @@
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "protoc-gen-grpc-web": "^1.5.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.7.2",
     "vue-loader": "^17.4.2",
     "vue-template-compiler": "^2.7.16"
   },
@@ -59,3 +57,5 @@
     "not ie 11"
   ]
 }
+
+
